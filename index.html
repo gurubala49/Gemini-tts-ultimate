@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Multi-Key TTS (Debug Mode)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #ea4335;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .log-entry { font-family: monospace; margin-bottom: 4px; border-bottom: 1px solid #333; padding-bottom: 2px; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-800">
+
+    <div class="max-w-4xl mx-auto p-6">
+        
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-slate-900 mb-2">Gemini TTS (Multi-Key)</h1>
+            <p class="text-slate-500">Fixed Version with Safety Checks</p>
+            <div id="systemStatus" class="mt-2 text-xs font-mono text-orange-500">System Status: Loading...</div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Google AI Studio API Keys</label>
+                    <textarea id="apiKeys" rows="3" placeholder="Paste keys here (One per line)&#10;AIzaSyD...&#10;AIzaSyE..." 
+                           class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none text-xs font-mono"></textarea>
+                    <div class="flex items-center mt-2 justify-between">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="rememberKey" class="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500">
+                            <label for="rememberKey" class="ml-2 text-sm text-slate-500">Remember keys</label>
+                        </div>
+                        <span id="keyCountBadge" class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded hidden">0 Keys loaded</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Select Voice</label>
+                    <select id="voiceSelect" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none text-sm bg-white">
+                        <option value="Charon" selected>Charon (Deep/Calm)</option>
+                        <option value="Fenrir">Fenrir (Energetic)</option>
+                        <option value="Puck">Puck (Neutral)</option>
+                        <option value="Kore">Kore (Firm)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+            <label class="text-sm font-medium text-slate-700 mb-2 block">Tamil Text Input</label>
+            <textarea id="textInput" rows="8" 
+                      class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none resize-y font-sans text-sm"
+                      placeholder="Paste Tamil text here..."></textarea>
+
+            <div id="progressContainer" class="hidden mt-4">
+                <div class="flex justify-between text-xs text-slate-600 mb-1">
+                    <span id="progressText">Initializing...</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progressBar" class="bg-red-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button id="submitBtn" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded-lg transition flex items-center shadow-md">
+                    <span id="btnText">Generate Tamil Audio</span>
+                    <div id="loadingSpinner" class="loader ml-2 hidden"></div>
+                </button>
+            </div>
+        </div>
+
+        <div id="resultArea" class="hidden bg-emerald-50 rounded-xl border border-emerald-200 p-6">
+            <h3 class="text-emerald-800 font-semibold mb-3">Success / வெற்றி</h3>
+            <audio id="audioPlayer" controls class="w-full mb-4 rounded-lg bg-white shadow-sm"></audio>
+            <a id="downloadLink" href="#" class="inline-block bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Download WAV</a>
+        </div>
+
+        <div id="logArea" class="mt-6 p-4 bg-gray-900 rounded-lg text-gray-300 text-xs font-mono h-40 overflow-y-auto hidden">
+            <div id="logContent"></div>
+        </div>
+
+    </div>
+
+    <script>
+    // --- Config ---
+    const MAX_CHUNK_SIZE = 5000; 
+    const MODEL_NAME = "gemini-2.5-flash-preview-tts";
+
+    // --- Elements ---
+    let elements = {};
+
+    // --- Init (Protected) ---
+    window.addEventListener('DOMContentLoaded', () => {
+        try {
+            elements = {
+                input: document.getElementById('textInput'),
+                apiKeys: document.getElementById('apiKeys'),
+                remember: document.getElementById('rememberKey'),
+                btn: document.getElementById('submitBtn'),
+                btnText: document.getElementById('btnText'),
+                spinner: document.getElementById('loadingSpinner'),
+                voiceSelect: document.getElementById('voiceSelect'),
+                logs: document.getElementById('logContent'),
+                logArea: document.getElementById('logArea'),
+                result: document.getElementById('resultArea'),
+                audio: document.getElementById('audioPlayer'),
+                download: document.getElementById('downloadLink'),
+                progressCont: document.getElementById('progressContainer'),
+                progressBar: document.getElementById('progressBar'),
+                progressText: document.getElementById('progressText'),
+                progressPercent: document.getElementById('progressPercent'),
+                keyBadge: document.getElementById('keyCountBadge'),
+                status: document.getElementById('systemStatus')
+            };
+
+            // Bind Events
+            if(elements.btn) elements.btn.addEventListener('click', startProcessing);
+            if(elements.apiKeys) elements.apiKeys.addEventListener('input', updateKeyCount);
+
+            // Try loading keys safely
+            try {
+                const savedKeys = localStorage.getItem('gemini_api_keys');
+                if (savedKeys && elements.apiKeys) { 
+                    elements.apiKeys.value = savedKeys; 
+                    if(elements.remember) elements.remember.checked = true;
+                    updateKeyCount();
+                }
+            } catch (e) {
+                console.warn("LocalStorage blocked - ignoring auto-load.");
+            }
+
+            elements.status.textContent = "System Status: Ready (JS Loaded)";
+            elements.status.className = "mt-2 text-xs font-mono text-green-600";
+
+        } catch (e) {
+            alert("Critical Error during initialization: " + e.message);
+        }
+    });
+
+    // --- State ---
+    let keyList = [];
+    let currentKeyIndex = 0;
+
+    function updateKeyCount() {
+        if(!elements.apiKeys) return;
+        const keys = elements.apiKeys.value.split('\n').map(k => k.trim()).filter(k => k);
+        if (keys.length > 0) {
+            elements.keyBadge.textContent = `${keys.length} Keys Loaded`;
+            elements.keyBadge.classList.remove('hidden');
+        } else {
+            elements.keyBadge.classList.add('hidden');
+        }
+    }
+
+    async function startProcessing() {
+        console.log("Button clicked!"); // Debug log
+
+        const text = elements.input.value.trim();
+        const rawKeys = elements.apiKeys.value;
+        const voice = elements.voiceSelect.value;
+        
+        // 1. Validation
+        keyList = rawKeys.split('\n').map(k => k.trim()).filter(k => k.length > 10);
+        
+        if (keyList.length === 0) { alert("Please paste your API Key(s) first."); return; }
+        if (!text) { alert("Please enter the Tamil text you want to convert."); return; }
+
+        // Try saving keys safely
+        if (elements.remember.checked) {
+            try { localStorage.setItem('gemini_api_keys', rawKeys); } catch(e) {}
+        } else {
+            try { localStorage.removeItem('gemini_api_keys'); } catch(e) {}
+        }
+
+        // Reset UI
+        currentKeyIndex = 0;
+        elements.result.classList.add('hidden');
+        elements.logArea.classList.remove('hidden');
+        elements.progressCont.classList.remove('hidden');
+        elements.logs.innerHTML = '';
+        updateProgress(0, 100);
+        setLoading(true);
+
+        try {
+            log(`Starting with ${keyList.length} API keys available.`);
+            
+            // 2. Safe Split
+            const chunks = safeSmartSplit(text, MAX_CHUNK_SIZE);
+            log(`Text split into ${chunks.length} parts.`);
+
+            let allPcmData = [];
+
+            // 3. Loop Chunks
+            for (let i = 0; i < chunks.length; i++) {
+                updateProgress(i, chunks.length);
+                const chunkNum = i + 1;
+                
+                // Add explicit Tamil instruction
+                const prompt = `Read this naturally in Tamil (do not translate): \n${chunks[i]}`;
+                
+                // --- ROTATION LOGIC ---
+                let chunkSuccess = false;
+                let chunkData = null;
+                let attempts = 0;
+                const maxAttempts = keyList.length * 2; 
+
+                while (!chunkSuccess && attempts < maxAttempts) {
+                    try {
+                        log(`Processing part ${chunkNum}/${chunks.length} using Key #${currentKeyIndex + 1}...`);
+                        chunkData = await fetchAudioWithKey(prompt, keyList[currentKeyIndex], voice);
+                        chunkSuccess = true; 
+                    } catch (err) {
+                        attempts++;
+                        const isQuota = err.message.toLowerCase().includes('quota') || err.message.includes('429');
+                        
+                        if (isQuota) {
+                            log(`⚠️ Key #${currentKeyIndex + 1} Limit Hit! Switching...`, true);
+                            currentKeyIndex = (currentKeyIndex + 1) % keyList.length;
+                            log(`🔄 Switched to Key #${currentKeyIndex + 1}. Retrying...`);
+                        } else {
+                            throw err; 
+                        }
+                    }
+                }
+
+                if (!chunkSuccess) throw new Error("All API keys exhausted or blocked.");
+                allPcmData.push(chunkData);
+
+                if (i < chunks.length - 1) await new Promise(r => setTimeout(r, 1500));
+            }
+
+            // 4. Merge
+            log("Merging audio files...");
+            const finalWav = mergeWav(allPcmData);
+            
+            // 5. Show Result
+            const blob = new Blob([finalWav], { type: 'audio/wav' });
+            const url = URL.createObjectURL(blob);
+            elements.audio.src = url;
+            elements.download.href = url;
+            elements.download.download = `Tamil_Audio_${Date.now()}.wav`;
+            
+            elements.result.classList.remove('hidden');
+            updateProgress(100, 100);
+            log("Done! Audio generated successfully.");
+
+        } catch (err) {
+            console.error(err);
+            log(`FATAL ERROR: ${err.message}`, true);
+            alert(`Error: ${err.message}`);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // --- Helper Functions ---
+
+    async function fetchAudioWithKey(text, key, voice) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${key}`;
+        const payload = {
+            contents: [{ parts: [{ text: text }] }],
+            generationConfig: {
+                responseModalities: ["AUDIO"],
+                speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
+            }
+        };
+
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            const msg = err.error?.message || res.statusText;
+            throw new Error(msg);
+        }
+
+        const data = await res.json();
+        const base64 = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+        if (!base64) throw new Error("No audio returned");
+
+        const bin = atob(base64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return bytes;
+    }
+
+    function safeSmartSplit(text, limit) {
+        if (text.length <= limit) return [text];
+        const chunks = [];
+        let remaining = text;
+        while (remaining.length > 0) {
+            if (remaining.length <= limit) { chunks.push(remaining); break; }
+            let cutIndex = -1;
+            const searchWindow = remaining.substring(0, limit);
+            const lastNewLine = searchWindow.lastIndexOf('\n');
+            const lastPeriod = searchWindow.lastIndexOf('.');
+            const lastExclaim = searchWindow.lastIndexOf('!');
+            const lastQuestion = searchWindow.lastIndexOf('?');
+            cutIndex = Math.max(lastNewLine, lastPeriod, lastExclaim, lastQuestion);
+            if (cutIndex === -1) cutIndex = searchWindow.lastIndexOf(' ');
+            if (cutIndex === -1) cutIndex = limit;
+            else cutIndex += 1;
+            if (cutIndex === 0) cutIndex = limit;
+            chunks.push(remaining.substring(0, cutIndex).trim());
+            remaining = remaining.substring(cutIndex).trim();
+        }
+        return chunks;
+    }
+
+    function mergeWav(pcmArrays) {
+        let len = 0;
+        pcmArrays.forEach(p => len += p.length);
+        const merged = new Uint8Array(len);
+        let offset = 0;
+        pcmArrays.forEach(p => { merged.set(p, offset); offset += p.length; });
+        const buffer = new ArrayBuffer(44 + len);
+        const view = new DataView(buffer);
+        const sampleRate = 24000;
+        writeStr(view, 0, 'RIFF'); view.setUint32(4, 36 + len, true); writeStr(view, 8, 'WAVE');
+        writeStr(view, 12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true); writeStr(view, 36, 'data'); view.setUint32(40, len, true);
+        new Uint8Array(buffer, 44).set(merged);
+        return buffer;
+    }
+    function writeStr(view, offset, str) { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); }
+    function log(msg, isError) {
+        const div = document.createElement('div');
+        div.className = `log-entry ${isError ? 'text-red-400' : 'text-green-400'}`;
+        div.textContent = `> ${msg}`;
+        elements.logs.appendChild(div);
+        elements.logArea.scrollTop = elements.logArea.scrollHeight;
+    }
+    function updateProgress(curr, total) {
+        const pct = Math.round((curr / total) * 100);
+        elements.progressBar.style.width = `${pct}%`;
+        elements.progressText.textContent = `Processing... ${pct}%`;
+        elements.progressPercent.textContent = `${pct}%`;
+    }
+    function setLoading(isLoading) {
+        if(elements.btn) elements.btn.disabled = isLoading;
+        if(elements.spinner) elements.spinner.classList.toggle('hidden', !isLoading);
+        if(elements.btnText) elements.btnText.textContent = isLoading ? "Processing..." : "Generate Tamil Audio";
+    }
+    </script>
+</body>
+</html>
