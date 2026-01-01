@@ -245,7 +245,7 @@
         theme: el('themeSelect'),
         input: el('textInput'),
         lang: el('langInput'),
-        apiKeys: el('apiKeys'),
+        Keys: el('Keys'),
         remember: el('rememberKey'),
         btn: el('submitBtn'),
         btnText: el('btnText'),
@@ -273,8 +273,8 @@
 
         // Key Load
         try {
-            const savedKeys = localStorage.getItem('gemini_api_keys');
-            if (savedKeys) { elements.apiKeys.value = savedKeys; elements.remember.checked = true; updateKeyCount(); }
+            const savedKeys = localStorage.getItem('gemini__keys');
+            if (savedKeys) { elements.Keys.value = savedKeys; elements.remember.checked = true; updateKeyCount(); }
         } catch(e) {}
         
         log("System initialized. Ready.");
@@ -282,7 +282,7 @@
 
     // --- Events ---
     elements.theme.addEventListener('change', (e) => setTheme(e.target.value));
-    elements.apiKeys.addEventListener('input', updateKeyCount);
+    elements.Keys.addEventListener('input', updateKeyCount);
     elements.btn.addEventListener('click', startProcessing);
 
     // --- Theme Logic ---
@@ -293,7 +293,7 @@
     }
 
     function updateKeyCount() {
-        const keys = elements.apiKeys.value.split('\n').map(k => k.trim()).filter(k => k);
+        const keys = elements.Keys.value.split('\n').map(k => k.trim()).filter(k => k);
         if (keys.length > 0) {
             elements.keyBadge.textContent = `${keys.length} Keys`;
             elements.keyBadge.classList.remove('hidden');
@@ -305,16 +305,16 @@
     // --- Processing ---
     async function startProcessing() {
         const text = elements.input.value.trim();
-        const rawKeys = elements.apiKeys.value;
+        const rawKeys = elements.Keys.value;
         const voice = elements.voiceSelect.value;
         const lang = elements.lang.value.trim();
         
         const keyList = rawKeys.split('\n').map(k => k.trim()).filter(k => k.length > 10);
         
-        if (keyList.length === 0) { alert("Please enter API Keys."); return; }
+        if (keyList.length === 0) { alert("Please enter  Keys."); return; }
         if (!text) { alert("Please enter text."); return; }
 
-        if (elements.remember.checked) { try { localStorage.setItem('gemini_api_keys', rawKeys); } catch(e){} }
+        if (elements.remember.checked) { try { localStorage.setItem('gemini__keys', rawKeys); } catch(e){} }
 
         // Reset UI
         let currentKeyIndex = 0;
@@ -332,7 +332,7 @@
             for (let i = 0; i < chunks.length; i++) {
                 updateProgress(i, chunks.length);
                 
-                let prompt = `Read this naturally.`;
+                let prompt = `Read this as a book narrator, use the Schedar voice only, keep neutral tone.`;
                 if (lang) prompt += ` Language: ${lang}. Do not translate.`;
                 prompt += `\nText:\n${chunks[i]}`;
 
@@ -388,7 +388,7 @@
         }
     }
 
-    // --- API & Helpers ---
+    // ---  & Helpers ---
     async function fetchAudioWithKey(text, key, voice) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${key}`;
         const payload = {
@@ -487,3 +487,4 @@
     </script>
 </body>
 </html>
+
