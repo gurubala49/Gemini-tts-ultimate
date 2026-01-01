@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Ultimate TTS</title>
+    <title>Gemini Ultimate TTS (Schedar Edition)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
     
@@ -18,177 +18,81 @@
                         retro: ['Playfair Display', 'serif'],
                         future: ['Orbitron', 'sans-serif'],
                     },
-                    animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'crt-flicker': 'flicker 0.15s infinite',
-                    },
-                    keyframes: {
-                        flicker: {
-                            '0%': { opacity: '0.97' },
-                            '50%': { opacity: '1' },
-                            '100%': { opacity: '0.98' },
-                        }
-                    }
+                    animation: { 'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }
                 }
             }
         }
     </script>
 
     <style>
-        /* --- THEME ENGINE (CSS Variables) --- */
-        :root {
-            --bg-color: #f8fafc;
-            --text-color: #0f172a;
-            --panel-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --accent-color: #2563eb;
-            --btn-text: #ffffff;
-            --log-bg: #1e293b;
-            --log-text: #94a3b8;
-        }
+        :root { --bg: #f8fafc; --text: #0f172a; --panel: #ffffff; --border: #e2e8f0; --accent: #2563eb; --btn-text: #ffffff; --log-bg: #1e293b; --log-text: #94a3b8; }
+        body.theme-modern { --bg: #f0f9ff; --text: #1e293b; --panel: rgba(255,255,255,0.95); --border: #bae6fd; --accent: #0ea5e9; font-family: 'Inter', sans-serif; background-image: radial-gradient(#e0f2fe 1px, transparent 1px); background-size: 24px 24px; }
+        body.theme-retro { --bg: #fdf6e3; --text: #5c4033; --panel: #eee8d5; --border: #d3c6aa; --accent: #cb4b16; --btn-text: #fdf6e3; --log-bg: #3f3630; --log-text: #d3c6aa; font-family: 'Playfair Display', serif; }
+        body.theme-future { --bg: #030712; --text: #e2e8f0; --panel: rgba(17,24,39,0.85); --border: #22d3ee; --accent: #06b6d4; --btn-text: #000000; --log-bg: #000000; --log-text: #22d3ee; font-family: 'Orbitron', sans-serif; }
+        body.theme-terminal { --bg: #000000; --text: #33ff00; --panel: #0a0a0a; --border: #33ff00; --accent: #33ff00; --btn-text: #000000; --log-bg: #000000; --log-text: #33ff00; font-family: 'JetBrains Mono', monospace; }
 
-        /* Modern Theme */
-        body.theme-modern {
-            --bg-color: #f0f9ff;
-            --text-color: #1e293b;
-            --panel-bg: rgba(255, 255, 255, 0.8);
-            --border-color: #bae6fd;
-            --accent-color: #0ea5e9;
-            --btn-text: #ffffff;
-            font-family: 'Inter', sans-serif;
-            background-image: radial-gradient(#e0f2fe 1px, transparent 1px);
-            background-size: 24px 24px;
-        }
-
-        /* Retro Theme */
-        body.theme-retro {
-            --bg-color: #fdf6e3;
-            --text-color: #5c4033;
-            --panel-bg: #eee8d5;
-            --border-color: #d3c6aa;
-            --accent-color: #cb4b16;
-            --btn-text: #fdf6e3;
-            --log-bg: #3f3630;
-            --log-text: #d3c6aa;
-            font-family: 'Playfair Display', serif;
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
-        }
-
-        /* Future Theme */
-        body.theme-future {
-            --bg-color: #030712;
-            --text-color: #e2e8f0;
-            --panel-bg: rgba(17, 24, 39, 0.7);
-            --border-color: #22d3ee;
-            --accent-color: #06b6d4; /* Cyan */
-            --btn-text: #000000;
-            --log-bg: #000000;
-            --log-text: #22d3ee;
-            font-family: 'Orbitron', sans-serif;
-            background: linear-gradient(0deg, rgba(34,211,238,0.1) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(34,211,238,0.1) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-
-        /* Terminal Theme */
-        body.theme-terminal {
-            --bg-color: #000000;
-            --text-color: #33ff00;
-            --panel-bg: #0a0a0a;
-            --border-color: #33ff00;
-            --accent-color: #33ff00;
-            --btn-text: #000000;
-            --log-bg: #000000;
-            --log-text: #33ff00;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* Apply Variables */
-        body { background-color: var(--bg-color); color: var(--text-color); transition: background 0.5s ease, color 0.5s ease; }
-        .skin-panel { background-color: var(--panel-bg); border: 1px solid var(--border-color); }
-        .skin-input { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-color); }
-        .skin-btn { background-color: var(--accent-color); color: var(--btn-text); }
-        .skin-log { background-color: var(--log-bg); color: var(--log-text); border: 1px solid var(--border-color); }
-
-        /* Utilities */
-        .loader {
-            border: 3px solid currentColor;
-            border-top-color: transparent;
-            border-radius: 50%;
-            width: 20px; height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { background-color: var(--bg); color: var(--text); transition: all 0.5s ease; }
+        .skin-panel { background-color: var(--panel); border: 1px solid var(--border); }
+        .skin-input { background-color: transparent; border: 1px solid var(--border); color: var(--text); }
+        .skin-btn { background-color: var(--accent); color: var(--btn-text); }
+        .skin-log { background-color: var(--log-bg); color: var(--log-text); border: 1px solid var(--border); }
         
-        /* Log Scrollbar Styling */
+        .loader { border: 3px solid currentColor; border-top-color: transparent; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .skin-log::-webkit-scrollbar { width: 8px; }
-        .skin-log::-webkit-scrollbar-track { background: transparent; }
-        .skin-log::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        .skin-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
     </style>
 </head>
 <body class="theme-modern min-h-screen p-4 md:p-8">
 
     <div class="max-w-4xl mx-auto">
-        
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div>
-                <h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-1">Gemini Studio TTS</h1>
+                <h1 class="text-3xl font-bold tracking-tight mb-1">Gemini Studio TTS</h1>
                 <div class="flex items-center gap-2 opacity-75 text-sm">
                     <span class="inline-block w-2 h-2 rounded-full bg-current animate-pulse"></span>
-                    <span>Multi-Key • Auto-Retry • Unlimited</span>
+                    <span>Schedar Voice • Neutral Tone • Stable</span>
                 </div>
             </div>
-            
-            <div class="skin-panel px-3 py-2 rounded-lg backdrop-blur-md shadow-sm">
-                <label class="text-xs uppercase font-bold tracking-wider opacity-60 block mb-1">Interface Theme</label>
-                <select id="themeSelect" class="bg-transparent outline-none cursor-pointer w-40 font-medium">
+            <div class="skin-panel px-3 py-2 rounded-lg backdrop-blur-md">
+                <select id="themeSelect" class="bg-transparent outline-none cursor-pointer w-40 font-medium text-sm">
                     <option value="modern">🔹 Modern</option>
-                    <option value="retro">📜 Retro Paper</option>
-                    <option value="future">🔮 Neon Future</option>
+                    <option value="retro">📜 Retro</option>
+                    <option value="future">🔮 Future</option>
                     <option value="terminal">📟 Terminal</option>
                 </select>
             </div>
         </div>
 
-        <div class="skin-panel rounded-xl p-6 mb-6 shadow-sm transition-all duration-300">
+        <div class="skin-panel rounded-xl p-6 mb-6 shadow-sm">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <label class="font-semibold text-sm">API Keys (Round-Robin)</label>
-                        <span id="keyCountBadge" class="text-[10px] px-2 py-0.5 rounded-full border border-current hidden font-mono">0 Loaded</span>
+                        <span id="keyCountBadge" class="text-[10px] px-2 py-0.5 rounded-full border border-current hidden font-mono">0 Keys</span>
                     </div>
-                    <textarea id="apiKeys" rows="3" placeholder="Paste Google AI Studio keys here (One per line)..." 
-                           class="skin-input w-full p-3 rounded-lg focus:ring-2 focus:ring-current outline-none text-xs font-mono"></textarea>
+                    <textarea id="apiKeys" rows="3" placeholder="Paste keys here (One per line)..." class="skin-input w-full p-3 rounded-lg text-xs font-mono outline-none focus:ring-1 focus:ring-current"></textarea>
                     <div class="flex items-center mt-2">
                         <input type="checkbox" id="rememberKey" class="w-4 h-4 rounded border-gray-300 accent-current">
-                        <label for="rememberKey" class="ml-2 text-xs opacity-80 cursor-pointer">Save keys safely in browser</label>
+                        <label for="rememberKey" class="ml-2 text-xs opacity-80 cursor-pointer">Remember keys</label>
                     </div>
                 </div>
-
                 <div>
-                    <label class="block font-semibold text-sm mb-2">Voice Model</label>
-                    <select id="voiceSelect" class="skin-input w-full p-3 rounded-lg outline-none mb-4">
-                        <option value="Charon">Charon (Deep/Calm) - Best for narration</option>
-                        <option value="Fenrir">Fenrir (Energetic) - Good for fast content</option>
-                        <option value="Puck">Puck (Neutral) - Standard assistant</option>
-                        <option value="Kore">Kore (Firm) - Professional/News</option>
-                        <option value="Aoede">Aoede (Soft) - Storytelling</option>
-                    </select>
-
-                    <label class="block font-semibold text-sm mb-2">Language Prompt (Optional)</label>
-                    <input type="text" id="langInput" placeholder="Auto-detect (or type: 'Tamil', 'French'...)" 
-                           class="skin-input w-full p-3 rounded-lg outline-none text-sm">
+                    <label class="block font-semibold text-sm mb-2">Voice Configuration</label>
+                    <div class="skin-input w-full p-3 rounded-lg text-sm mb-4 opacity-70 cursor-not-allowed">
+                        🔒 Voice: Schedar (Neutral/Male)
+                    </div>
+                    
+                    <label class="block font-semibold text-sm mb-2">Language (Optional)</label>
+                    <input type="text" id="langInput" placeholder="Auto-detect (e.g. Tamil)..." class="skin-input w-full p-3 rounded-lg outline-none text-sm">
                 </div>
             </div>
         </div>
 
         <div class="skin-panel rounded-xl p-6 mb-6 shadow-sm">
             <label class="block font-semibold text-sm mb-2">Text Content</label>
-            <textarea id="textInput" rows="8" 
-                      class="skin-input w-full p-4 rounded-lg focus:ring-2 focus:ring-current outline-none resize-y text-base leading-relaxed"
-                      placeholder="Paste your text here. The system will auto-chunk long text..."></textarea>
-
+            <textarea id="textInput" rows="8" class="skin-input w-full p-4 rounded-lg outline-none resize-y text-base leading-relaxed" placeholder="Paste your text here..."></textarea>
+            
             <div id="progressContainer" class="hidden mt-6">
                 <div class="flex justify-between text-xs font-mono opacity-80 mb-1">
                     <span id="progressText">Initializing...</span>
@@ -199,7 +103,7 @@
                 </div>
             </div>
 
-            <div class="mt-6 flex justify-end gap-4">
+            <div class="mt-6 flex justify-end">
                 <button id="submitBtn" class="skin-btn px-8 py-3 rounded-lg font-bold shadow-lg hover:brightness-110 active:scale-95 transition-all flex items-center gap-3">
                     <span id="btnText">Generate Audio</span>
                     <div id="loadingSpinner" class="loader hidden"></div>
@@ -207,34 +111,28 @@
             </div>
         </div>
 
-        <div id="resultArea" class="hidden skin-panel p-6 rounded-xl border-2 mb-6 animate-pulse-slow relative overflow-hidden">
-            <div class="absolute inset-0 bg-current opacity-5 pointer-events-none"></div>
-            <div class="relative z-10 flex flex-col md:flex-row items-center gap-4 justify-between">
+        <div id="resultArea" class="hidden skin-panel p-6 rounded-xl border-2 mb-6 relative overflow-hidden">
+            <div class="flex flex-col md:flex-row items-center gap-4 justify-between relative z-10">
                 <div>
-                    <h3 class="font-bold text-lg">Processing Complete</h3>
-                    <p class="text-xs opacity-70 font-mono" id="resultStats">Ready for download</p>
+                    <h3 class="font-bold text-lg">Complete</h3>
+                    <p class="text-xs opacity-70 font-mono" id="resultStats">Ready</p>
                 </div>
-                <div class="flex gap-3 w-full md:w-auto">
-                    <audio id="audioPlayer" controls class="h-10 w-full md:w-48 opacity-90"></audio>
-                    <a id="downloadLink" href="#" class="skin-btn px-4 py-2 rounded-lg font-bold text-sm flex items-center shadow-md whitespace-nowrap">
-                        Download .WAV
-                    </a>
+                <div class="flex gap-3">
+                    <audio id="audioPlayer" controls class="h-10 w-48 opacity-90"></audio>
+                    <a id="downloadLink" href="#" class="skin-btn px-4 py-2 rounded-lg font-bold text-sm flex items-center shadow-md">Download .WAV</a>
                 </div>
             </div>
         </div>
 
-        <div class="skin-log rounded-lg p-4 font-mono text-xs h-64 overflow-y-auto shadow-inner">
-            <div class="sticky top-0 bg-inherit border-b border-dashed border-current pb-2 mb-2 opacity-50 uppercase tracking-widest font-bold">
-                System Process Log
-            </div>
+        <div id="logArea" class="skin-log rounded-lg p-4 font-mono text-xs h-64 overflow-y-auto shadow-inner">
+            <div class="sticky top-0 bg-inherit border-b border-dashed border-current pb-2 mb-2 opacity-50 font-bold">SYSTEM LOG</div>
             <div id="logContent" class="space-y-1"></div>
         </div>
-
     </div>
 
     <script>
     // --- Config ---
-    const MAX_CHUNK_SIZE = 4000; 
+    const MAX_CHUNK_SIZE = 6500; // Kept at stable limit
     const MAX_RETRIES = 5;       
     const RETRY_DELAY = 3000;    
     const MODEL_NAME = "gemini-2.5-flash-preview-tts";
@@ -242,81 +140,48 @@
     // --- DOM Elements ---
     const el = (id) => document.getElementById(id);
     const elements = {
-        theme: el('themeSelect'),
-        input: el('textInput'),
-        lang: el('langInput'),
-        Keys: el('Keys'),
-        remember: el('rememberKey'),
-        btn: el('submitBtn'),
-        btnText: el('btnText'),
-        spinner: el('loadingSpinner'),
-        voiceSelect: el('voiceSelect'),
-        logs: el('logContent'),
-        logArea: el('logArea'), // The scrollable container
-        result: el('resultArea'),
-        resultStats: el('resultStats'),
-        audio: el('audioPlayer'),
-        download: el('downloadLink'),
-        progressCont: el('progressContainer'),
-        progressBar: el('progressBar'),
-        progressText: el('progressText'),
-        progressPercent: el('progressPercent'),
-        keyBadge: el('keyCountBadge')
+        theme: el('themeSelect'), input: el('textInput'), lang: el('langInput'),
+        apiKeys: el('apiKeys'), remember: el('rememberKey'), btn: el('submitBtn'),
+        btnText: el('btnText'), spinner: el('loadingSpinner'), 
+        logs: el('logContent'), logArea: el('logArea'), result: el('resultArea'),
+        resultStats: el('resultStats'), audio: el('audioPlayer'), download: el('downloadLink'),
+        progressCont: el('progressContainer'), progressBar: el('progressBar'),
+        progressText: el('progressText'), progressPercent: el('progressPercent'), keyBadge: el('keyCountBadge')
     };
 
-    // --- Init ---
     window.addEventListener('DOMContentLoaded', () => {
-        // Theme Load
         const savedTheme = localStorage.getItem('tts_theme') || 'modern';
-        setTheme(savedTheme);
-        elements.theme.value = savedTheme;
-
-        // Key Load
+        setTheme(savedTheme); elements.theme.value = savedTheme;
         try {
-            const savedKeys = localStorage.getItem('gemini__keys');
-            if (savedKeys) { elements.Keys.value = savedKeys; elements.remember.checked = true; updateKeyCount(); }
+            const savedKeys = localStorage.getItem('gemini_api_keys');
+            if (savedKeys) { elements.apiKeys.value = savedKeys; elements.remember.checked = true; updateKeyCount(); }
         } catch(e) {}
-        
-        log("System initialized. Ready.");
+        log(`System Ready. Voice: Schedar (Neutral). Capacity: ${MAX_CHUNK_SIZE}.`);
     });
 
-    // --- Events ---
     elements.theme.addEventListener('change', (e) => setTheme(e.target.value));
-    elements.Keys.addEventListener('input', updateKeyCount);
+    elements.apiKeys.addEventListener('input', updateKeyCount);
     elements.btn.addEventListener('click', startProcessing);
 
-    // --- Theme Logic ---
-    function setTheme(theme) {
-        document.body.className = `theme-${theme} min-h-screen p-4 md:p-8 transition-colors duration-500`;
-        localStorage.setItem('tts_theme', theme);
-        log(`Theme changed to: ${theme}`);
+    function setTheme(t) { document.body.className = `theme-${t} min-h-screen p-4 md:p-8`; localStorage.setItem('tts_theme', t); }
+    function updateKeyCount() { 
+        const k = elements.apiKeys.value.split('\n').filter(x => x.trim()); 
+        elements.keyBadge.textContent = k.length ? `${k.length} Keys` : ''; 
+        elements.keyBadge.classList.toggle('hidden', !k.length); 
     }
 
-    function updateKeyCount() {
-        const keys = elements.Keys.value.split('\n').map(k => k.trim()).filter(k => k);
-        if (keys.length > 0) {
-            elements.keyBadge.textContent = `${keys.length} Keys`;
-            elements.keyBadge.classList.remove('hidden');
-        } else {
-            elements.keyBadge.classList.add('hidden');
-        }
-    }
-
-    // --- Processing ---
     async function startProcessing() {
         const text = elements.input.value.trim();
-        const rawKeys = elements.Keys.value;
-        const voice = elements.voiceSelect.value;
+        const rawKeys = elements.apiKeys.value;
+        // HARDCODED VOICE
+        const voice = "Schedar";
         const lang = elements.lang.value.trim();
-        
         const keyList = rawKeys.split('\n').map(k => k.trim()).filter(k => k.length > 10);
         
-        if (keyList.length === 0) { alert("Please enter  Keys."); return; }
-        if (!text) { alert("Please enter text."); return; }
+        if (!keyList.length) { alert("Missing API Keys"); return; }
+        if (!text) { alert("Missing Text"); return; }
+        if (elements.remember.checked) try { localStorage.setItem('gemini_api_keys', rawKeys); } catch(e){}
 
-        if (elements.remember.checked) { try { localStorage.setItem('gemini__keys', rawKeys); } catch(e){} }
-
-        // Reset UI
         let currentKeyIndex = 0;
         elements.result.classList.add('hidden');
         elements.progressCont.classList.remove('hidden');
@@ -326,15 +191,17 @@
 
         try {
             const chunks = safeSmartSplit(text, MAX_CHUNK_SIZE);
-            log(`Starting job: ${text.length} chars -> ${chunks.length} chunks.`);
+            log(`Job Started: ${chunks.length} chunks.`);
             let allPcmData = [];
 
             for (let i = 0; i < chunks.length; i++) {
                 updateProgress(i, chunks.length);
                 
-                let prompt = `Read this as a book narrator, use the Schedar voice only, keep neutral tone.`;
+                // --- STRICT NEUTRAL PROMPT ---
+                // As requested: Schedar voice only + Neutral Tone
+                let prompt = `Role: Narrator. Voice: Schedar. Tone: Neutral, even, and professional.`;
                 if (lang) prompt += ` Language: ${lang}. Do not translate.`;
-                prompt += `\nText:\n${chunks[i]}`;
+                prompt += `\nText: "${chunks[i]}"`;
 
                 let chunkSuccess = false;
                 let chunkData = null;
@@ -343,57 +210,50 @@
                 while (!chunkSuccess && attempts < MAX_RETRIES) {
                     try {
                         const key = keyList[currentKeyIndex];
-                        log(`Processing Chunk ${i+1}/${chunks.length} (Key #${currentKeyIndex+1})...`);
-                        chunkData = await fetchAudioWithKey(prompt, key, voice);
+                        log(`Processing Chunk ${i+1}/${chunks.length}...`);
+                        // Temp 0.1 for maximum stability
+                        chunkData = await fetchAudioWithKey(prompt, key, voice, 0.1); 
                         chunkSuccess = true;
                     } catch (err) {
                         attempts++;
-                        const isQuota = err.message.toLowerCase().includes('quota') || err.message.includes('429');
-                        
-                        if (isQuota) {
-                            log(`⚠️ Key #${currentKeyIndex+1} Limit Hit! Switching...`, true);
+                        if (err.message.includes('quota') || err.message.includes('429')) {
+                            log(`⚠️ Limit Hit! Rotating Key...`, true);
                             currentKeyIndex = (currentKeyIndex + 1) % keyList.length;
                         } else {
-                            log(`⚠️ Error: ${err.message}. Retrying (${attempts}/${MAX_RETRIES})...`, true);
+                            log(`⚠️ Error: ${err.message}. Retrying...`, true);
                             if (attempts < MAX_RETRIES) await new Promise(r => setTimeout(r, RETRY_DELAY));
                         }
                     }
                 }
-
-                if (!chunkSuccess) throw new Error(`Failed to process chunk ${i+1}.`);
+                if (!chunkSuccess) throw new Error(`Failed Chunk ${i+1}`);
                 allPcmData.push(chunkData);
-                if (i < chunks.length - 1) await new Promise(r => setTimeout(r, 1000));
             }
 
-            // Merge
-            log("Merging audio segments...");
+            log("Merging...");
             const finalWav = mergeWav(allPcmData);
             const blob = new Blob([finalWav], { type: 'audio/wav' });
             const url = URL.createObjectURL(blob);
-            
             elements.audio.src = url;
             elements.download.href = url;
-            elements.download.download = `Gemini_${Date.now()}.wav`;
-            elements.resultStats.textContent = `Size: ${(blob.size/1024/1024).toFixed(2)} MB | Chunks: ${chunks.length}`;
-            
+            elements.download.download = `Gemini_Schedar_Neutral.wav`;
+            elements.resultStats.textContent = `${(blob.size/1024/1024).toFixed(2)} MB | ${chunks.length} Chunks`;
             elements.result.classList.remove('hidden');
             updateProgress(100, 100);
-            log("✅ Success! Audio generated.");
+            log("✅ Done.");
 
         } catch (err) {
-            log(`❌ FAILED: ${err.message}`, true);
-            alert("Process Failed. Check logs.");
+            log(`❌ ${err.message}`, true);
         } finally {
             setLoading(false);
         }
     }
 
-    // ---  & Helpers ---
-    async function fetchAudioWithKey(text, key, voice) {
+    async function fetchAudioWithKey(text, key, voice, temp) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${key}`;
         const payload = {
             contents: [{ parts: [{ text: text }] }],
             generationConfig: {
+                temperature: temp, 
                 responseModalities: ["AUDIO"],
                 speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
             }
@@ -409,11 +269,10 @@
             const err = await res.json().catch(() => ({}));
             throw new Error(err.error?.message || res.statusText);
         }
-
         const data = await res.json();
         const base64 = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-        if (!base64) throw new Error("Empty audio response");
-
+        if (!base64) throw new Error("Empty audio");
+        
         const bin = atob(base64);
         const bytes = new Uint8Array(bin.length);
         for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
@@ -457,36 +316,17 @@
     }
     function writeStr(v, o, s) { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
     
-    // --- Fixed Logger ---
     function log(msg, err) { 
-        const d = document.createElement('div'); 
-        const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' });
-        d.className = err ? 'text-red-500 font-bold' : 'opacity-80';
-        d.innerHTML = `<span class="opacity-50 mr-2">[${time}]</span>${msg}`;
-        
-        elements.logs.appendChild(d); 
-        
-        // Force scroll to bottom immediately
-        requestAnimationFrame(() => {
-            elements.logArea.scrollTop = elements.logArea.scrollHeight;
-        });
+        const d = document.createElement('div'); d.className = err ? 'text-red-500 font-bold' : 'opacity-80';
+        d.innerHTML = `<span class="opacity-50 mr-2">[${new Date().toLocaleTimeString()}]</span>${msg}`;
+        elements.logs.appendChild(d); elements.logArea.scrollTop = elements.logArea.scrollHeight;
     }
-
     function updateProgress(c, t) { 
-        const p = Math.round((c/t)*100); 
-        elements.progressBar.style.width = `${p}%`; 
-        elements.progressText.textContent = `Processing... ${p}%`; 
-        elements.progressPercent.textContent = `${p}%`;
+        const p = Math.round((c/t)*100); elements.progressBar.style.width = `${p}%`; elements.progressPercent.textContent = `${p}%`; 
     }
-
     function setLoading(b) { 
-        elements.btn.disabled = b; 
-        elements.spinner.classList.toggle('hidden', !b); 
-        elements.btnText.textContent = b ? "Working..." : "Generate Audio"; 
+        elements.btn.disabled = b; elements.spinner.classList.toggle('hidden', !b); elements.btnText.textContent = b ? "Working..." : "Generate Audio"; 
     }
     </script>
 </body>
 </html>
-
-
-
