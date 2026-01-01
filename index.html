@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Ultimate TTS (Schedar Edition)</title>
+    <title>Gemini TTS (Schedar Default)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
     
@@ -51,7 +51,7 @@
                 <h1 class="text-3xl font-bold tracking-tight mb-1">Gemini Studio TTS</h1>
                 <div class="flex items-center gap-2 opacity-75 text-sm">
                     <span class="inline-block w-2 h-2 rounded-full bg-current animate-pulse"></span>
-                    <span>Schedar Voice • Neutral Tone • Stable</span>
+                    <span>Schedar Voice • Default Tone • Stable</span>
                 </div>
             </div>
             <div class="skin-panel px-3 py-2 rounded-lg backdrop-blur-md">
@@ -132,7 +132,7 @@
 
     <script>
     // --- Config ---
-    const MAX_CHUNK_SIZE = 6500; // Kept at stable limit
+    const MAX_CHUNK_SIZE = 2500; 
     const MAX_RETRIES = 5;       
     const RETRY_DELAY = 3000;    
     const MODEL_NAME = "gemini-2.5-flash-preview-tts";
@@ -156,7 +156,7 @@
             const savedKeys = localStorage.getItem('gemini_api_keys');
             if (savedKeys) { elements.apiKeys.value = savedKeys; elements.remember.checked = true; updateKeyCount(); }
         } catch(e) {}
-        log(`System Ready. Voice: Schedar (Neutral). Capacity: ${MAX_CHUNK_SIZE}.`);
+        log(`System Ready. Voice: Schedar (Default). Capacity: ${MAX_CHUNK_SIZE}.`);
     });
 
     elements.theme.addEventListener('change', (e) => setTheme(e.target.value));
@@ -173,7 +173,6 @@
     async function startProcessing() {
         const text = elements.input.value.trim();
         const rawKeys = elements.apiKeys.value;
-        // HARDCODED VOICE
         const voice = "Schedar";
         const lang = elements.lang.value.trim();
         const keyList = rawKeys.split('\n').map(k => k.trim()).filter(k => k.length > 10);
@@ -197,8 +196,6 @@
             for (let i = 0; i < chunks.length; i++) {
                 updateProgress(i, chunks.length);
                 
-                // --- STRICT NEUTRAL PROMPT ---
-                // As requested: Schedar voice only + Neutral Tone
                 let prompt = `Role: Narrator. Voice: Schedar. Tone: Neutral, even, and professional.`;
                 if (lang) prompt += ` Language: ${lang}. Do not translate.`;
                 prompt += `\nText: "${chunks[i]}"`;
@@ -211,8 +208,9 @@
                     try {
                         const key = keyList[currentKeyIndex];
                         log(`Processing Chunk ${i+1}/${chunks.length}...`);
-                        // Temp 0.1 for maximum stability
-                        chunkData = await fetchAudioWithKey(prompt, key, voice, 0.1); 
+                        
+                        // REMOVED 'temperature: 0.1' - Defaults to model standard
+                        chunkData = await fetchAudioWithKey(prompt, key, voice); 
                         chunkSuccess = true;
                     } catch (err) {
                         attempts++;
@@ -248,12 +246,12 @@
         }
     }
 
-    async function fetchAudioWithKey(text, key, voice, temp) {
+    async function fetchAudioWithKey(text, key, voice) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${key}`;
         const payload = {
             contents: [{ parts: [{ text: text }] }],
             generationConfig: {
-                temperature: temp, 
+                // Temperature line deleted to use DEFAULT
                 responseModalities: ["AUDIO"],
                 speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
             }
@@ -330,3 +328,4 @@
     </script>
 </body>
 </html>
+```[2026-01-01 17:30:24 IST]
