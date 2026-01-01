@@ -332,7 +332,7 @@
             for (let i = 0; i < chunks.length; i++) {
                 updateProgress(i, chunks.length);
                 
-                let prompt = `Read this naturally.`;
+                let prompt = `Read this, keep the tone and speed neutral - follow the tone rule strictly`;
                 if (lang) prompt += ` Language: ${lang}. Do not translate.`;
                 prompt += `\nText:\n${chunks[i]}`;
 
