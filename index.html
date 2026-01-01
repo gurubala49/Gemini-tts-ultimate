@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Ultimate TTS (Stable Core)</title>
+    <title>Gemini Ultimate TTS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
     
@@ -20,6 +20,14 @@
                     },
                     animation: {
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'crt-flicker': 'flicker 0.15s infinite',
+                    },
+                    keyframes: {
+                        flicker: {
+                            '0%': { opacity: '0.97' },
+                            '50%': { opacity: '1' },
+                            '100%': { opacity: '0.98' },
+                        }
                     }
                 }
             }
@@ -27,7 +35,7 @@
     </script>
 
     <style>
-        /* CSS Variables for Themes */
+        /* --- THEME ENGINE (CSS Variables) --- */
         :root {
             --bg-color: #f8fafc;
             --text-color: #0f172a;
@@ -43,7 +51,7 @@
         body.theme-modern {
             --bg-color: #f0f9ff;
             --text-color: #1e293b;
-            --panel-bg: rgba(255, 255, 255, 0.95);
+            --panel-bg: rgba(255, 255, 255, 0.8);
             --border-color: #bae6fd;
             --accent-color: #0ea5e9;
             --btn-text: #ffffff;
@@ -70,9 +78,9 @@
         body.theme-future {
             --bg-color: #030712;
             --text-color: #e2e8f0;
-            --panel-bg: rgba(17, 24, 39, 0.85);
+            --panel-bg: rgba(17, 24, 39, 0.7);
             --border-color: #22d3ee;
-            --accent-color: #06b6d4;
+            --accent-color: #06b6d4; /* Cyan */
             --btn-text: #000000;
             --log-bg: #000000;
             --log-text: #22d3ee;
@@ -95,13 +103,14 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Base Styles */
+        /* Apply Variables */
         body { background-color: var(--bg-color); color: var(--text-color); transition: background 0.5s ease, color 0.5s ease; }
         .skin-panel { background-color: var(--panel-bg); border: 1px solid var(--border-color); }
         .skin-input { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-color); }
         .skin-btn { background-color: var(--accent-color); color: var(--btn-text); }
         .skin-log { background-color: var(--log-bg); color: var(--log-text); border: 1px solid var(--border-color); }
 
+        /* Utilities */
         .loader {
             border: 3px solid currentColor;
             border-top-color: transparent;
@@ -111,6 +120,7 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
+        /* Log Scrollbar Styling */
         .skin-log::-webkit-scrollbar { width: 8px; }
         .skin-log::-webkit-scrollbar-track { background: transparent; }
         .skin-log::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
@@ -125,12 +135,12 @@
                 <h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-1">Gemini Studio TTS</h1>
                 <div class="flex items-center gap-2 opacity-75 text-sm">
                     <span class="inline-block w-2 h-2 rounded-full bg-current animate-pulse"></span>
-                    <span>Persona Lock • Zero Temp • 9k Chunks</span>
+                    <span>Multi-Key • Auto-Retry • Unlimited</span>
                 </div>
             </div>
             
             <div class="skin-panel px-3 py-2 rounded-lg backdrop-blur-md shadow-sm">
-                <label class="text-xs uppercase font-bold tracking-wider opacity-60 block mb-1">Theme</label>
+                <label class="text-xs uppercase font-bold tracking-wider opacity-60 block mb-1">Interface Theme</label>
                 <select id="themeSelect" class="bg-transparent outline-none cursor-pointer w-40 font-medium">
                     <option value="modern">🔹 Modern</option>
                     <option value="retro">📜 Retro Paper</option>
@@ -152,22 +162,22 @@
                            class="skin-input w-full p-3 rounded-lg focus:ring-2 focus:ring-current outline-none text-xs font-mono"></textarea>
                     <div class="flex items-center mt-2">
                         <input type="checkbox" id="rememberKey" class="w-4 h-4 rounded border-gray-300 accent-current">
-                        <label for="rememberKey" class="ml-2 text-xs opacity-80 cursor-pointer">Remember keys</label>
+                        <label for="rememberKey" class="ml-2 text-xs opacity-80 cursor-pointer">Save keys safely in browser</label>
                     </div>
                 </div>
 
                 <div>
                     <label class="block font-semibold text-sm mb-2">Voice Model</label>
                     <select id="voiceSelect" class="skin-input w-full p-3 rounded-lg outline-none mb-4">
-                        <option value="Charon">Charon (Deep/Calm) - Recommended</option>
-                        <option value="Fenrir">Fenrir (Energetic/Fast)</option>
-                        <option value="Puck">Puck (Neutral/Chat)</option>
-                        <option value="Kore">Kore (Professional/News)</option>
-                        <option value="Aoede">Aoede (Soft/Story)</option>
+                        <option value="Charon">Charon (Deep/Calm) - Best for narration</option>
+                        <option value="Fenrir">Fenrir (Energetic) - Good for fast content</option>
+                        <option value="Puck">Puck (Neutral) - Standard assistant</option>
+                        <option value="Kore">Kore (Firm) - Professional/News</option>
+                        <option value="Aoede">Aoede (Soft) - Storytelling</option>
                     </select>
 
-                    <label class="block font-semibold text-sm mb-2">Language (Optional)</label>
-                    <input type="text" id="langInput" placeholder="Auto-detect (or type 'Tamil', 'French')" 
+                    <label class="block font-semibold text-sm mb-2">Language Prompt (Optional)</label>
+                    <input type="text" id="langInput" placeholder="Auto-detect (or type: 'Tamil', 'French'...)" 
                            class="skin-input w-full p-3 rounded-lg outline-none text-sm">
                 </div>
             </div>
@@ -177,7 +187,7 @@
             <label class="block font-semibold text-sm mb-2">Text Content</label>
             <textarea id="textInput" rows="8" 
                       class="skin-input w-full p-4 rounded-lg focus:ring-2 focus:ring-current outline-none resize-y text-base leading-relaxed"
-                      placeholder="Paste your text here. 9000 characters per chunk supported."></textarea>
+                      placeholder="Paste your text here. The system will auto-chunk long text..."></textarea>
 
             <div id="progressContainer" class="hidden mt-6">
                 <div class="flex justify-between text-xs font-mono opacity-80 mb-1">
@@ -224,20 +234,10 @@
 
     <script>
     // --- Config ---
-    const MAX_CHUNK_SIZE = 9000; // UPDATED to 9000 as requested
+    const MAX_CHUNK_SIZE = 4000; 
     const MAX_RETRIES = 5;       
     const RETRY_DELAY = 3000;    
     const MODEL_NAME = "gemini-2.5-flash-preview-tts";
-
-    // --- PERSONA DEFINITIONS (The "Voice Bible") ---
-    // These instructions are sent with EVERY chunk to force consistency
-    const PERSONA_PROMPTS = {
-        "Charon": "You are Charon. Voice Traits: Deep, resonant, low-pitch, steady, authoritative. Pacing: Slow and deliberate. Emotion: Neutral and consistent.",
-        "Fenrir": "You are Fenrir. Voice Traits: Energetic, high-pitched, enthusiastic, bright. Pacing: Fast and punchy. Emotion: Happy and engaging.",
-        "Puck": "You are Puck. Voice Traits: Mid-tone, natural, conversational, polite. Pacing: Medium, like a helpful assistant. Emotion: Friendly.",
-        "Kore": "You are Kore. Voice Traits: Firm, professional, clear articulation, mid-range pitch. Style: News anchor or documentary narrator.",
-        "Aoede": "You are Aoede. Voice Traits: Soft, breathy, high-pitched, gentle. Pacing: Slow and soothing. Style: Storytelling."
-    };
 
     // --- DOM Elements ---
     const el = (id) => document.getElementById(id);
@@ -252,7 +252,7 @@
         spinner: el('loadingSpinner'),
         voiceSelect: el('voiceSelect'),
         logs: el('logContent'),
-        logArea: el('logArea'),
+        logArea: el('logArea'), // The scrollable container
         result: el('resultArea'),
         resultStats: el('resultStats'),
         audio: el('audioPlayer'),
@@ -266,14 +266,18 @@
 
     // --- Init ---
     window.addEventListener('DOMContentLoaded', () => {
+        // Theme Load
         const savedTheme = localStorage.getItem('tts_theme') || 'modern';
         setTheme(savedTheme);
         elements.theme.value = savedTheme;
+
+        // Key Load
         try {
             const savedKeys = localStorage.getItem('gemini_api_keys');
             if (savedKeys) { elements.apiKeys.value = savedKeys; elements.remember.checked = true; updateKeyCount(); }
         } catch(e) {}
-        log(`System Ready. Max Chunk: ${MAX_CHUNK_SIZE}. Temp: 0.0`);
+        
+        log("System initialized. Ready.");
     });
 
     // --- Events ---
@@ -281,18 +285,24 @@
     elements.apiKeys.addEventListener('input', updateKeyCount);
     elements.btn.addEventListener('click', startProcessing);
 
+    // --- Theme Logic ---
     function setTheme(theme) {
         document.body.className = `theme-${theme} min-h-screen p-4 md:p-8 transition-colors duration-500`;
         localStorage.setItem('tts_theme', theme);
+        log(`Theme changed to: ${theme}`);
     }
 
     function updateKeyCount() {
         const keys = elements.apiKeys.value.split('\n').map(k => k.trim()).filter(k => k);
-        elements.keyBadge.textContent = keys.length > 0 ? `${keys.length} Keys` : '';
-        elements.keyBadge.classList.toggle('hidden', keys.length === 0);
+        if (keys.length > 0) {
+            elements.keyBadge.textContent = `${keys.length} Keys`;
+            elements.keyBadge.classList.remove('hidden');
+        } else {
+            elements.keyBadge.classList.add('hidden');
+        }
     }
 
-    // --- PROCESSING LOGIC ---
+    // --- Processing ---
     async function startProcessing() {
         const text = elements.input.value.trim();
         const rawKeys = elements.apiKeys.value;
@@ -306,6 +316,7 @@
 
         if (elements.remember.checked) { try { localStorage.setItem('gemini_api_keys', rawKeys); } catch(e){} }
 
+        // Reset UI
         let currentKeyIndex = 0;
         elements.result.classList.add('hidden');
         elements.progressCont.classList.remove('hidden');
@@ -314,29 +325,16 @@
         setLoading(true);
 
         try {
-            // Split Text (Smart Splitting at 9000 chars)
             const chunks = safeSmartSplit(text, MAX_CHUNK_SIZE);
-            log(`Job started: ${text.length} chars -> ${chunks.length} chunks.`);
+            log(`Starting job: ${text.length} chars -> ${chunks.length} chunks.`);
             let allPcmData = [];
 
             for (let i = 0; i < chunks.length; i++) {
                 updateProgress(i, chunks.length);
                 
-                // --- PERSONA PROMPT CONSTRUCTION ---
-                const persona = PERSONA_PROMPTS[voice] || "Professional Narrator.";
-                
-                let prompt = `
-[SYSTEM INSTRUCTION]
-Role: Professional Voice Actor.
-Identity: ${persona}
-Constraint: Maintain consistent pitch, speed, and tone. Do not change emotion.
-`;
-                if (lang) prompt += `Language: ${lang}. Do not translate.\n`;
-                
-                prompt += `
-[TEXT TO READ]:
-"${chunks[i]}"
-`;
+                let prompt = `Read this naturally.`;
+                if (lang) prompt += ` Language: ${lang}. Do not translate.`;
+                prompt += `\nText:\n${chunks[i]}`;
 
                 let chunkSuccess = false;
                 let chunkData = null;
@@ -345,21 +343,18 @@ Constraint: Maintain consistent pitch, speed, and tone. Do not change emotion.
                 while (!chunkSuccess && attempts < MAX_RETRIES) {
                     try {
                         const key = keyList[currentKeyIndex];
-                        log(`Processing Chunk ${i+1}/${chunks.length}...`);
-                        
-                        // Call API with Temperature 0.0 (Deterministic)
-                        chunkData = await fetchAudioWithKey(prompt, key, voice, 0.0);
-                        
+                        log(`Processing Chunk ${i+1}/${chunks.length} (Key #${currentKeyIndex+1})...`);
+                        chunkData = await fetchAudioWithKey(prompt, key, voice);
                         chunkSuccess = true;
                     } catch (err) {
                         attempts++;
                         const isQuota = err.message.toLowerCase().includes('quota') || err.message.includes('429');
                         
                         if (isQuota) {
-                            log(`⚠️ Limit Hit! Rotating Key...`, true);
+                            log(`⚠️ Key #${currentKeyIndex+1} Limit Hit! Switching...`, true);
                             currentKeyIndex = (currentKeyIndex + 1) % keyList.length;
                         } else {
-                            log(`⚠️ Error: ${err.message}. Retrying...`, true);
+                            log(`⚠️ Error: ${err.message}. Retrying (${attempts}/${MAX_RETRIES})...`, true);
                             if (attempts < MAX_RETRIES) await new Promise(r => setTimeout(r, RETRY_DELAY));
                         }
                     }
@@ -370,14 +365,15 @@ Constraint: Maintain consistent pitch, speed, and tone. Do not change emotion.
                 if (i < chunks.length - 1) await new Promise(r => setTimeout(r, 1000));
             }
 
-            log("Merging audio...");
+            // Merge
+            log("Merging audio segments...");
             const finalWav = mergeWav(allPcmData);
             const blob = new Blob([finalWav], { type: 'audio/wav' });
             const url = URL.createObjectURL(blob);
             
             elements.audio.src = url;
             elements.download.href = url;
-            elements.download.download = `Gemini_${voice}_Audio.wav`;
+            elements.download.download = `Gemini_${Date.now()}.wav`;
             elements.resultStats.textContent = `Size: ${(blob.size/1024/1024).toFixed(2)} MB | Chunks: ${chunks.length}`;
             
             elements.result.classList.remove('hidden');
@@ -392,14 +388,12 @@ Constraint: Maintain consistent pitch, speed, and tone. Do not change emotion.
         }
     }
 
-    // --- API Helper ---
-    async function fetchAudioWithKey(text, key, voice, temp) {
+    // --- API & Helpers ---
+    async function fetchAudioWithKey(text, key, voice) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${key}`;
         const payload = {
             contents: [{ parts: [{ text: text }] }],
             generationConfig: {
-                // ZERO TEMP = ROBOTIC CONSISTENCY (PREVENTS DRIFT)
-                temperature: temp, 
                 responseModalities: ["AUDIO"],
                 speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
             }
@@ -426,7 +420,6 @@ Constraint: Maintain consistent pitch, speed, and tone. Do not change emotion.
         return bytes;
     }
 
-    // --- Utilities ---
     function safeSmartSplit(text, limit) {
         if (text.length <= limit) return [text];
         const chunks = [];
@@ -464,13 +457,19 @@ Constraint: Maintain consistent pitch, speed, and tone. Do not change emotion.
     }
     function writeStr(v, o, s) { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
     
+    // --- Fixed Logger ---
     function log(msg, err) { 
         const d = document.createElement('div'); 
         const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' });
         d.className = err ? 'text-red-500 font-bold' : 'opacity-80';
         d.innerHTML = `<span class="opacity-50 mr-2">[${time}]</span>${msg}`;
+        
         elements.logs.appendChild(d); 
-        requestAnimationFrame(() => { elements.logArea.scrollTop = elements.logArea.scrollHeight; });
+        
+        // Force scroll to bottom immediately
+        requestAnimationFrame(() => {
+            elements.logArea.scrollTop = elements.logArea.scrollHeight;
+        });
     }
 
     function updateProgress(c, t) { 
