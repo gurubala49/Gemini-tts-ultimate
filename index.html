@@ -344,7 +344,7 @@
                     try {
                         const key = keyList[currentKeyIndex];
                         log(`Processing Chunk ${i+1}/${chunks.length} (Key #${currentKeyIndex+1})...`);
-                        chunkData = await fetchAudioWithKey(prompt, key, voice);
+                        chunkData = await fetchAudioWithKey(prompt, key);
                         chunkSuccess = true;
                     } catch (err) {
                         attempts++;
@@ -487,4 +487,5 @@
     </script>
 </body>
 </html>
+
 
